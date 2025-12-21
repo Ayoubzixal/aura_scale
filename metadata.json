@@ -1,0 +1,7 @@
+{
+  "name": "AuraScale - Facial Aesthetic Analyzer",
+  "description": "A sophisticated AI-powered application that evaluates facial aesthetics based on evolutionary biology and geometric norms. It analyzes symmetry, skin health, neoteny, and golden ratio proportions to provide detailed scores for female faces.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
