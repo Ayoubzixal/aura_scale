@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { analyzeFaces } from './services/geminiService';
 import { AnalysisResult, AnalysisStatus, FaceAnalysis } from './types';
-import { fileToBase64, generateHash, saveToHistory, getCachedResult, getHistory } from './utils/helpers';
+import { fileToBase64, generateHash, saveToHistory, getCachedResult, getHistory, deleteFromHistory, clearAllHistory } from './utils/helpers';
 import FaceDetailCard from './components/FaceDetailCard';
 
 const App: React.FC = () => {
@@ -34,7 +34,7 @@ const App: React.FC = () => {
       }
 
       const faces = await analyzeFaces(base64);
-      
+
       const newResult: AnalysisResult = {
         id: hash,
         timestamp: Date.now(),
@@ -56,6 +56,17 @@ const App: React.FC = () => {
   const clearResults = () => {
     setResult(null);
     setStatus(AnalysisStatus.IDLE);
+  };
+
+  const handleDeleteHistoryItem = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    deleteFromHistory(id);
+    setHistory(getHistory());
+  };
+
+  const handleClearAllHistory = () => {
+    clearAllHistory();
+    setHistory([]);
   };
 
   return (
@@ -84,7 +95,7 @@ const App: React.FC = () => {
                 <span className="gradient-text italic">Quantifiable.</span>
               </h1>
               <p className="text-lg text-white/40 max-w-xl mx-auto leading-relaxed">
-                Using evolutionary biological frameworks and geometric precision, 
+                Using evolutionary biological frameworks and geometric precision,
                 our AI decodes facial aesthetics through symmetry, skin health, and koinophilia.
               </p>
             </div>
@@ -92,7 +103,7 @@ const App: React.FC = () => {
             <div className="flex flex-col items-center gap-6">
               <label className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-semibold cursor-pointer hover:bg-white/90 transition-all active:scale-95 shadow-xl shadow-white/5">
                 <span>Start Analysis</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
                 <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
               </label>
               <p className="text-[10px] uppercase tracking-[0.2em] text-white/20">Supports JPEG, PNG, WEBP (Female Faces Only)</p>
@@ -135,7 +146,7 @@ const App: React.FC = () => {
         {status === AnalysisStatus.ERROR && (
           <div className="max-w-xl mx-auto glass border-red-900/50 p-8 rounded-3xl text-center space-y-6">
             <div className="w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
             </div>
             <p className="text-white/80">{error}</p>
             <button onClick={clearResults} className="px-6 py-3 border border-white/10 rounded-full text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all">Try Again</button>
@@ -146,21 +157,21 @@ const App: React.FC = () => {
           <div className="max-w-5xl mx-auto space-y-12">
             <div className="flex flex-col md:flex-row gap-12 items-start">
               <div className="md:w-1/2 sticky top-32">
-                 <div className="glass rounded-[2rem] overflow-hidden p-2">
-                   <img src={result.imageData} alt="Analysis Source" className="w-full h-auto rounded-[1.8rem]" />
-                 </div>
-                 <div className="mt-8 flex justify-between items-end">
-                    <div>
-                      <h2 className="text-3xl font-serif">Deep Analysis</h2>
-                      <p className="text-white/40 text-sm mt-1">{result.faces.length} face{result.faces.length !== 1 ? 's' : ''} detected & ranked</p>
-                    </div>
-                    <button 
-                      onClick={clearResults} 
-                      className="px-6 py-3 glass rounded-full text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all"
-                    >
-                      New Scan
-                    </button>
-                 </div>
+                <div className="glass rounded-[2rem] overflow-hidden p-2">
+                  <img src={result.imageData} alt="Analysis Source" className="w-full h-auto rounded-[1.8rem]" />
+                </div>
+                <div className="mt-8 flex justify-between items-end">
+                  <div>
+                    <h2 className="text-3xl font-serif">Deep Analysis</h2>
+                    <p className="text-white/40 text-sm mt-1">{result.faces.length} face{result.faces.length !== 1 ? 's' : ''} detected & ranked</p>
+                  </div>
+                  <button
+                    onClick={clearResults}
+                    className="px-6 py-3 glass rounded-full text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all"
+                  >
+                    New Scan
+                  </button>
+                </div>
               </div>
 
               <div className="md:w-1/2">
@@ -181,11 +192,19 @@ const App: React.FC = () => {
         {/* History Section */}
         {history.length > 0 && status === AnalysisStatus.IDLE && (
           <div className="mt-24 pt-12 border-t border-white/5">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-white/20 mb-8 text-center">Previous Sessions</h3>
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-white/20 text-center flex-1">Previous Sessions</h3>
+              <button
+                onClick={handleClearAllHistory}
+                className="px-4 py-2 text-xs uppercase tracking-widest text-red-400/70 border border-red-400/20 rounded-full hover:bg-red-500/10 hover:text-red-400 hover:border-red-400/40 transition-all"
+              >
+                Clear All
+              </button>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {history.map((item, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className="glass group relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer hover:border-white/20 transition-all"
                   onClick={() => {
                     setResult(item);
@@ -193,6 +212,17 @@ const App: React.FC = () => {
                   }}
                 >
                   <img src={item.imageData} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" />
+                  {/* Delete Button */}
+                  <button
+                    onClick={(e) => handleDeleteHistoryItem(e, item.id)}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:border-red-500/50 z-10"
+                    title="Delete from history"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
                     <div className="text-left">
                       <div className="text-xs text-white/50">{new Date(item.timestamp).toLocaleDateString()}</div>

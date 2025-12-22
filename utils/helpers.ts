@@ -30,3 +30,13 @@ export const getCachedResult = (hash: string): any | null => {
   const history = getHistory();
   return history.find(item => item.id === hash) || null;
 };
+
+export const deleteFromHistory = (id: string): void => {
+  const history = getHistory();
+  const updated = history.filter(item => item.id !== id);
+  localStorage.setItem('aurascale_history', JSON.stringify(updated));
+};
+
+export const clearAllHistory = (): void => {
+  localStorage.removeItem('aurascale_history');
+};

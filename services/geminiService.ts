@@ -5,20 +5,22 @@ import { AnalysisResult, FaceAnalysis } from "../types";
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || '' });
 
 const ANALYSIS_PROMPT = `
-Analyze the female faces in the provided image based on aesthetic biological norms. 
-Follow these constraints strictly:
-1. ONLY analyze female faces. Ignore male faces or non-human objects.
-2. EXCLUDE hair from scoring calculations; focus purely on facial features and skin.
-3. For each detected face, provide:
-   - facialSymmetry: Score 1-10 (How balanced left and right sides are).
-   - skinHealth: Score 1-10 (Even tone, clarity, texture).
-   - averageness: Score 1-10 (Proximity to population average features).
-   - sexualDimorphism: Score 1-10 (Feminine markers like high cheekbones, full lips).
-   - neoteny: Score 1-10 (Youthful markers like large eyes, small nose).
-   - goldenRatio: Score 1-10 (Ideal geometric spacing).
-   - Justifications: A short sentence for each metric explaining the score.
-   - overallScore: A weighted average score from 1-10.
-4. If multiple faces exist, rank them by overall score.
+Follow these constraints strictly and be analytical:
+Scope: ONLY analyze female faces. Ignore male faces or non-human objects.
+Focus: EXCLUDE hair, makeup styling, and accessories from scoring calculations; focus purely on facial bone structure, features, and skin condition.
+Strict Scoring: Use a strict bell-curve distribution. A score of 5.0 represents the global average. Scores above 8.5 are reserved for exceptional, model-tier traits. Do not artificially inflate scores.
+Metrics & Weighting: For each detected face, assess the following 1-10 scores. Calculate the Overall Score using the assigned percentages:
+Facial Symmetry (20%): Assessment of bilateral balance (eyes, brows, jawline).
+Sexual Dimorphism (20%): Intensity of feminine markers (estrogenization), such as jaw width, lip fullness, and brow ridge prominence.
+Golden Ratio (20%): Adherence to the Phi ratio (1.618) regarding vertical thirds and horizontal fifths spacing.
+Skin Health (15%): Texture uniformity, absence of blemishes, and evenness of tone (independent of lighting).
+Neoteny (15%): Youthful cues such as larger eye-to-face ratio, smaller nose, and shorter chin.
+Averageness (10%): "Koinophilia" — the lack of deviant or irregular features compared to the population mean.
+Output Format:
+List specific scores and a brief 1-sentence biological justification for each metric.
+Calculation: Show the math: (Sym × 0.20) + (Dim × 0.20) + (Gold × 0.20) + (Skin × 0.15) + (Neo × 0.15) + (Avg × 0.10) = Total
+Final Score: Display the weighted average out of 10.
+Ranking: If multiple faces are present, rank them from highest to lowest Overall Score.
 
 The output MUST be a valid JSON array of face objects.
 `;
