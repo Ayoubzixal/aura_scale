@@ -24,7 +24,7 @@ The output MUST be a valid JSON array of face objects.
 `;
 
 export const analyzeFaces = async (base64Image: string): Promise<FaceAnalysis[]> => {
-  const model = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash";
+  const model = import.meta.env.VITE_GEMINI_MODEL || "gemini-3-flash";
 
   const response = await ai.models.generateContent({
     model,
