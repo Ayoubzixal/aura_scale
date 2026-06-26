@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult, FaceAnalysis } from "../types";
 
@@ -30,17 +29,16 @@ export const analyzeFaces = async (base64Image: string): Promise<FaceAnalysis[]>
 
   const response = await ai.models.generateContent({
     model,
-    contents: {
-      parts: [
-        { text: ANALYSIS_PROMPT },
-        {
-          inlineData: {
-            mimeType: "image/jpeg",
-            data: base64Image.split(',')[1] || base64Image,
-          },
+    // التعديل هنا فقط: تمرير النص والصورة مباشرة داخل مصفوفة contents دون كائن parts الداخلي
+    contents: [
+      ANALYSIS_PROMPT,
+      {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: base64Image.split(',')[1] || base64Image,
         },
-      ],
-    },
+      },
+    ],
     config: {
       responseMimeType: "application/json",
       responseSchema: {
